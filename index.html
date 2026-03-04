@@ -3,269 +3,1050 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>30-Day Business Checklist</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Workspace — Personal OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #f5f2ee; --ink: #1a1a18; --muted: #999;
-    --line: #e0dbd3; --accent: #c8a96e; --done: #c8c2b8;
-  }
-  body { background: var(--bg); color: var(--ink); font-family: 'DM Mono', monospace; min-height: 100vh; display: flex; justify-content: center; padding: 60px 20px 100px; }
-  .container { width: 100%; max-width: 520px; }
-  header { margin-bottom: 48px; }
-  .title { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-  .subtitle { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 20px; }
-  .points-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
-  .points-value { font-size: 52px; font-weight: 500; line-height: 1; transition: color 0.3s, transform 0.3s; }
-  .points-value.bump { color: var(--accent); transform: scale(1.05); }
-  .points-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-  .progress-bar { height: 2px; background: var(--line); border-radius: 1px; margin-top: 14px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: width 0.4s ease; }
-  .progress-text { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; margin-top: 6px; }
-  .tabs-wrap { overflow-x: auto; padding-bottom: 4px; margin-bottom: 28px; scrollbar-width: none; }
-  .tabs-wrap::-webkit-scrollbar { display: none; }
-  .tabs { display: flex; gap: 6px; white-space: nowrap; }
-  .tab { background: none; border: 1px solid var(--line); border-radius: 2px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--muted); padding: 5px 10px; transition: all 0.15s; text-transform: uppercase; }
-  .tab:hover { border-color: var(--ink); color: var(--ink); }
-  .tab.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-  .tab.has-done { border-color: var(--accent); }
-  .day-group { margin-bottom: 36px; }
-  .day-heading { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 2px; }
-  .list { list-style: none; }
-  .item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); animation: fadeIn 0.18s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
-  .item.done .label { text-decoration: line-through; color: var(--done); }
-  .check { width: 17px; height: 17px; border: 1.5px solid var(--ink); border-radius: 2px; cursor: pointer; flex-shrink: 0; display: grid; place-items: center; transition: background 0.15s, border-color 0.15s; }
-  .item.done .check { background: var(--accent); border-color: var(--accent); }
-  .check-mark { width: 9px; height: 6px; opacity: 0; transition: opacity 0.15s; }
-  .item.done .check-mark { opacity: 1; }
-  .label { font-size: 13px; flex: 1; transition: color 0.2s; line-height: 1.4; }
-  .add-section { margin-top: 40px; border-top: 1.5px solid var(--ink); padding-top: 20px; }
-  .add-title { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-  .add-row { display: flex; gap: 8px; align-items: center; }
-  .add-row input, .add-row select { background: transparent; border: none; border-bottom: 1px solid var(--line); outline: none; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--ink); padding: 6px 0; }
-  .add-row input { flex: 1; }
-  .add-row select { color: var(--muted); font-size: 11px; cursor: pointer; }
-  .add-row input::placeholder { color: var(--muted); }
-  .add-btn { background: none; border: none; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 20px; color: var(--ink); line-height: 1; padding: 0 4px; transition: color 0.15s; }
-  .add-btn:hover { color: var(--accent); }
-  .mic-btn { background: none; border: 1px solid var(--line); border-radius: 2px; cursor: pointer; padding: 5px 7px; color: var(--muted); font-size: 13px; line-height: 1; transition: all 0.15s; flex-shrink: 0; }
-  .mic-btn:hover { border-color: var(--ink); color: var(--ink); }
-  .mic-btn.listening { border-color: #d03; color: #d03; animation: pulse 1s infinite; }
-  .mic-btn.no-support { opacity: 0.3; cursor: not-allowed; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--ink); color: var(--bg); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; padding: 9px 14px; border-radius: 2px; opacity: 0; transform: translateY(6px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
-  .toast.show { opacity: 1; transform: translateY(0); }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f2ee;--surface:#edeae5;--surface2:#e6e2dc;--border:#d8d2c8;
+  --ink:#1a1a18;--muted:#999;--muted2:#777;
+  --gold:#c8a96e;--gold2:#b8914e;--red:#c0392b;--green:#2e7d4f;--blue:#2a5fa5;
+  --font-serif:'Instrument Serif',serif;--font-mono:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-mono);min-height:100vh;overflow-x:hidden}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── LOGIN ── */
+.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.login-box{width:100%;max-width:380px}
+.login-wordmark{font-family:var(--font-serif);font-size:42px;color:var(--ink);line-height:1;margin-bottom:6px}
+.login-wordmark em{color:var(--gold);font-style:italic}
+.login-tagline{font-size:11px;color:var(--muted2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:48px}
+.login-rule{height:1px;background:var(--border);margin-bottom:36px}
+.google-btn{display:flex;align-items:center;gap:12px;width:100%;background:var(--surface2);color:var(--ink);border:1px solid var(--border);font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:14px 20px;cursor:pointer;border-radius:3px;transition:border-color .2s,background .2s}
+.google-btn:hover{border-color:var(--gold);background:var(--surface)}
+.login-note{font-size:10px;color:var(--muted);margin-top:12px;letter-spacing:0.06em}
+.login-err{font-size:11px;color:var(--red);margin-top:10px;display:none}
+.guest-btn{display:flex;align-items:center;justify-content:center;width:100%;background:transparent;color:var(--gold2);border:1.5px dashed var(--gold);font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:12px 20px;cursor:pointer;border-radius:3px;transition:all .2s}
+.guest-btn:hover{background:rgba(200,169,110,.08);border-style:solid}
+
+/* ── LAYOUT ── */
+.app{display:none;min-height:100vh}
+.app.show{display:flex}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50}
+.main{margin-left:220px;flex:1;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar-top{padding:24px 20px 20px}
+.s-wordmark{font-family:var(--font-serif);font-size:22px;color:var(--ink)}
+.s-wordmark em{color:var(--gold);font-style:italic}
+.s-user{font-size:10px;color:var(--muted2);margin-top:4px;letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-nav{flex:1;padding:8px 0;overflow-y:auto}
+.nav-section{font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);padding:16px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;font-size:12px;color:var(--muted2);letter-spacing:0.04em;transition:color .15s,background .15s;border-left:2px solid transparent;position:relative}
+.nav-item:hover{color:var(--ink);background:var(--surface2)}
+.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(200,169,110,0.06)}
+.nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--gold);color:var(--bg);font-size:9px;padding:1px 5px;border-radius:10px;font-weight:500}
+.sidebar-bottom{padding:16px 20px;border-top:1px solid var(--border)}
+.signout-btn{width:100%;background:none;border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:8px;cursor:pointer;border-radius:2px;transition:all .15s}
+.signout-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* ── PAGE HEADER ── */
+.page{display:none;padding:36px 40px 80px;animation:fadeUp .25s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:12px}
+.page-title{font-family:var(--font-serif);font-size:34px;color:var(--ink);line-height:1}
+.page-title em{color:var(--gold);font-style:italic}
+.page-sub{font-size:11px;color:var(--muted2);margin-top:4px;letter-spacing:0.04em}
+.sync-dot{font-size:10px;letter-spacing:0.06em;margin-top:6px}
+.sync-dot.synced{color:var(--gold)}
+.sync-dot.syncing{color:var(--muted2)}
+.sync-dot.err{color:var(--red)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px}
+.card-label{font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.card-value{font-family:var(--font-serif);font-size:32px;color:var(--ink);line-height:1}
+.card-value.green{color:var(--green)}
+.card-value.red{color:var(--red)}
+.card-value.gold{color:var(--gold)}
+.card-sub{font-size:10px;color:var(--muted2);margin-top:4px}
+
+/* ── GRID ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.grid4{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.sidebar{width:100%;height:auto;position:relative}.main{margin-left:0}.app{flex-direction:column}}
+
+/* ── SECTION BLOCKS ── */
+.section{margin-bottom:28px}
+.section-title{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.section-title span{color:var(--muted2)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:var(--bg);border:none;font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 16px;cursor:pointer;border-radius:2px;transition:opacity .15s;font-weight:500}
+.btn:hover{opacity:.85}
+.btn-ghost{background:transparent;color:var(--muted2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink);opacity:1}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--border)}
+.btn-danger:hover{border-color:var(--red);opacity:1}
+.btn-sm{padding:6px 11px;font-size:9px}
+
+/* ── FORM ELEMENTS ── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--ink);font-family:var(--font-mono);font-size:12px;padding:9px 12px;border-radius:2px;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+.field textarea{resize:vertical;min-height:70px}
+.field select option{background:var(--surface2)}
+.inline-fields{display:flex;gap:10px}
+.inline-fields .field{flex:1}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:4px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:28px;animation:fadeUp .2s ease}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-family:var(--font-serif);font-size:22px}
+.modal-close{background:none;border:none;color:var(--muted2);font-size:20px;cursor:pointer;line-height:1;padding:0}
+.modal-close:hover{color:var(--ink)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+
+/* ── CHECKLIST ── */
+.task-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);animation:fadeUp .15s ease}
+.task-item:last-child{border-bottom:none}
+.task-check{width:16px;height:16px;border:1.5px solid var(--muted);border-radius:2px;cursor:pointer;flex-shrink:0;display:grid;place-items:center;transition:all .15s}
+.task-item.done .task-check{background:var(--gold);border-color:var(--gold)}
+.task-check svg{opacity:0;transition:opacity .15s}
+.task-item.done .task-check svg{opacity:1}
+.task-item.done .task-label{text-decoration:line-through;color:var(--muted)}
+.task-label{font-size:13px;flex:1;line-height:1.4}
+.task-meta{font-size:10px;color:var(--muted);flex-shrink:0}
+.task-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0;line-height:1;opacity:0;transition:opacity .15s}
+.task-item:hover .task-del{opacity:1}
+.task-del:hover{color:var(--red)}
+.pts-badge{font-size:10px;color:var(--gold);font-weight:500;flex-shrink:0}
+
+/* ── MEETINGS ── */
+.meeting-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.meeting-item:last-child{border-bottom:none}
+.meeting-time{flex-shrink:0;text-align:right;min-width:52px}
+.meeting-time-val{font-size:13px;color:var(--gold)}
+.meeting-time-date{font-size:9px;color:var(--muted);margin-top:2px}
+.meeting-body{flex:1}
+.meeting-title{font-size:13px;margin-bottom:3px}
+.meeting-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+.tag{font-size:9px;letter-spacing:0.06em;padding:2px 7px;border-radius:10px;border:1px solid var(--border);color:var(--muted2);text-transform:uppercase}
+.tag.blue{border-color:var(--blue);color:var(--blue)}
+.tag.green{border-color:var(--green);color:var(--green)}
+.tag.gold{border-color:var(--gold);color:var(--gold)}
+.tag.red{border-color:var(--red);color:var(--red)}
+.meeting-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0;opacity:0;transition:opacity .15s;align-self:flex-start;margin-top:2px}
+.meeting-item:hover .meeting-del{opacity:1}
+.meeting-del:hover{color:var(--red)}
+
+/* ── FINANCE ── */
+.tx-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.tx-item:last-child{border-bottom:none}
+.tx-icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:14px;flex-shrink:0}
+.tx-icon.income{background:rgba(94,201,122,.1)}
+.tx-icon.expense{background:rgba(224,85,85,.1)}
+.tx-body{flex:1}
+.tx-label{font-size:12px}
+.tx-cat{font-size:10px;color:var(--muted);margin-top:1px}
+.tx-amount{font-size:13px;font-weight:500}
+.tx-amount.income{color:var(--green)}
+.tx-amount.expense{color:var(--red)}
+.tx-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0;opacity:0;transition:opacity .15s}
+.tx-item:hover .tx-del{opacity:1}
+.tx-del:hover{color:var(--red)}
+.tx-date{font-size:10px;color:var(--muted);flex-shrink:0}
+
+/* ── SCHEDULE ── */
+.sched-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.sched-item:last-child{border-bottom:none}
+.sched-bar{width:3px;border-radius:2px;flex-shrink:0;align-self:stretch;min-height:40px}
+.sched-bar.work{background:var(--blue)}
+.sched-bar.personal{background:var(--green)}
+.sched-bar.focus{background:var(--gold)}
+.sched-bar.admin{background:var(--muted)}
+.sched-body{flex:1}
+.sched-time{font-size:10px;color:var(--gold);letter-spacing:0.04em;margin-bottom:2px}
+.sched-title{font-size:13px}
+.sched-note{font-size:10px;color:var(--muted2);margin-top:3px}
+.sched-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0;opacity:0;transition:opacity .15s;align-self:flex-start;margin-top:2px}
+.sched-item:hover .sched-del{opacity:1}
+.sched-del:hover{color:var(--red)}
+
+/* ── PROGRESS BAR ── */
+.prog-wrap{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:10px}
+.prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s ease}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);color:var(--ink);font-family:var(--font-mono);font-size:11px;letter-spacing:0.06em;padding:10px 16px;border-radius:3px;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none;z-index:300}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:36px 20px;font-size:11px;color:var(--muted);letter-spacing:0.06em}
+
+/* ── OVERVIEW WELCOME ── */
+.welcome-strip{background:linear-gradient(135deg,rgba(200,169,110,.12),rgba(200,169,110,.04));border:1px solid rgba(200,169,110,.3);border-radius:4px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.welcome-text{font-family:var(--font-serif);font-size:20px;color:var(--ink)}
+.welcome-text em{color:var(--gold);font-style:italic}
+.welcome-date{font-size:11px;color:var(--muted2);letter-spacing:0.06em}
+
+/* ── MIC ── */
+.mic-btn{background:none;border:1px solid var(--border);border-radius:2px;cursor:pointer;padding:7px 9px;color:var(--muted2);font-size:12px;line-height:1;transition:all .15s}
+.mic-btn:hover{border-color:var(--ink);color:var(--ink)}
+.mic-btn.listening{border-color:var(--red);color:var(--red);animation:pulse 1s infinite}
+.mic-btn.no-support{opacity:.3;cursor:not-allowed}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ── FINANCE CHART ── */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:12px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-fill{width:100%;border-radius:2px 2px 0 0;transition:height .4s ease;min-height:2px}
+.bar-fill.income-bar{background:rgba(46,125,79,.35)}
+.bar-fill.expense-bar{background:rgba(192,57,43,.35)}
+.bar-month{font-size:9px;color:var(--muted);letter-spacing:0.04em}
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div class="title">30-Day Business Checklist</div>
-    <div class="subtitle">Canva Production &middot; Lead Outreach &middot; Mist &amp; Mism Website &mdash; Mar 5, 2026</div>
-    <div class="points-row">
-      <div class="points-value" id="pts">0</div>
-      <div class="points-label">points</div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-wordmark">Work<em>space</em></div>
+    <div class="login-tagline">Personal Operating System</div>
+    <div class="login-rule"></div>
+    <button class="google-btn" id="google-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#fff" opacity=".9"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#ccc" opacity=".7"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#aaa" opacity=".7"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#eee" opacity=".7"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="font-size:10px;color:var(--muted);letter-spacing:0.08em">or</div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
-    <div class="progress-text" id="prog-text"></div>
-  </header>
-  <div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
-  <div id="days-container"></div>
-  <div class="add-section">
-    <div class="add-title">add task</div>
-    <div class="add-row">
-      <input type="text" id="new-task" placeholder="task description..." maxlength="100">
-      <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Speak task">🎙</button>
-      <select id="day-select"></select>
-      <button class="add-btn" onclick="addTask()">+</button>
-    </div>
+    <button class="guest-btn" id="guest-btn">
+      ◈ &nbsp;Quick Access — Test User
+    </button>
+    <div class="login-note">Your personal workspace — private &amp; secure.</div>
+    <div class="login-err" id="login-err"></div>
   </div>
 </div>
-<div class="toast" id="toast">+10 pts</div>
 
-<script>
-const PRESET = [
-  ["Thursday, March 05, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
-  ["Friday, March 06, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
-  ["Saturday, March 07, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design homepage section layout","Gather visuals and portfolio assets"]],
-  ["Sunday, March 08, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write About page content","Start About page layout"]],
-  ["Monday, March 09, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write Services page content","Define service categories"]],
-  ["Tuesday, March 10, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design Services page layout","Organize portfolio projects"]],
-  ["Wednesday, March 11, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Build portfolio section layout","Review website progress"]],
-  ["Thursday, March 12, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
-  ["Friday, March 13, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
-  ["Saturday, March 14, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design homepage section layout","Gather visuals and portfolio assets"]],
-  ["Sunday, March 15, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write About page content","Start About page layout"]],
-  ["Monday, March 16, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write Services page content","Define service categories"]],
-  ["Tuesday, March 17, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design Services page layout","Organize portfolio projects"]],
-  ["Wednesday, March 18, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Build portfolio section layout","Review website progress"]],
-  ["Thursday, March 19, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
-  ["Friday, March 20, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
-  ["Saturday, March 21, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design homepage section layout","Gather visuals and portfolio assets"]],
-  ["Sunday, March 22, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write About page content","Start About page layout"]],
-  ["Monday, March 23, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write Services page content","Define service categories"]],
-  ["Tuesday, March 24, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design Services page layout","Organize portfolio projects"]],
-  ["Wednesday, March 25, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Build portfolio section layout","Review website progress"]],
-  ["Thursday, March 26, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
-  ["Friday, March 27, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
-  ["Saturday, March 28, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design homepage section layout","Gather visuals and portfolio assets"]],
-  ["Sunday, March 29, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write About page content","Start About page layout"]],
-  ["Monday, March 30, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write Services page content","Define service categories"]],
-  ["Tuesday, March 31, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design Services page layout","Organize portfolio projects"]],
-  ["Wednesday, April 01, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Build portfolio section layout","Review website progress"]],
-  ["Thursday, April 02, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
-  ["Friday, April 03, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
-];
+<!-- APP -->
+<div class="app" id="app">
 
-let data = JSON.parse(localStorage.getItem('biz30') || 'null');
-if (!data) {
-  data = PRESET.map(([day, tasks]) => ({ day, tasks: tasks.map(t => ({ text: t, done: false })) }));
-  localStorage.setItem('biz30', JSON.stringify(data));
-}
-let points = parseInt(localStorage.getItem('biz30pts') || '0');
-let activeDay = 'all';
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="s-wordmark">Work<em>space</em></div>
+      <div class="s-user" id="s-user"></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" data-page="overview"><span class="nav-icon">◈</span> Dashboard</div>
+      <div class="nav-section">Work</div>
+      <div class="nav-item" data-page="tasks"><span class="nav-icon">✦</span> Tasks <span class="nav-badge" id="badge-tasks">0</span></div>
+      <div class="nav-item" data-page="schedule"><span class="nav-icon">◷</span> Schedule</div>
+      <div class="nav-item" data-page="meetings"><span class="nav-icon">◎</span> Meetings</div>
+      <div class="nav-section">Finance</div>
+      <div class="nav-item" data-page="finance"><span class="nav-icon">◈</span> Finance</div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sync-dot syncing" id="sync-status" style="margin-bottom:10px;font-size:10px">● connecting...</div>
+      <button class="signout-btn" id="signout-btn">Sign out</button>
+    </div>
+  </aside>
 
-function save() { localStorage.setItem('biz30', JSON.stringify(data)); localStorage.setItem('biz30pts', points); }
-function shortDay(d) { const p = d.split(', '); return p[0].slice(0,3).toUpperCase() + ' ' + p[1].split(' ')[1]; }
-function totalDone() { return data.reduce((a,g) => a + g.tasks.filter(t=>t.done).length, 0); }
-function totalTasks() { return data.reduce((a,g) => a + g.tasks.length, 0); }
+  <!-- Main -->
+  <main class="main">
 
-function renderAll() {
-  document.getElementById('pts').textContent = points;
-  const done = totalDone(), total = totalTasks();
-  document.getElementById('prog').style.width = (done/total*100) + '%';
-  document.getElementById('prog-text').textContent = done + ' / ' + total + ' tasks done';
+    <!-- OVERVIEW -->
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Good <em id="greeting-time">morning</em></div>
+          <div class="page-sub" id="today-date"></div>
+        </div>
+      </div>
+      <div class="welcome-strip">
+        <div class="welcome-text">Ready to <em>build</em> something great today?</div>
+        <div class="welcome-date" id="welcome-date"></div>
+      </div>
+      <div class="grid4" style="margin-bottom:24px" id="overview-stats"></div>
+      <div class="grid2">
+        <div>
+          <div class="section">
+            <div class="section-title">Today's Tasks <span id="ov-tasks-count"></span></div>
+            <div class="card" id="ov-tasks-list"></div>
+          </div>
+        </div>
+        <div>
+          <div class="section">
+            <div class="section-title">Upcoming Meetings <span id="ov-mtg-count"></span></div>
+            <div class="card" id="ov-mtg-list"></div>
+          </div>
+          <div class="section" style="margin-top:16px">
+            <div class="section-title">Finance Snapshot</div>
+            <div class="card" id="ov-finance"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  const tabsEl = document.getElementById('tabs');
-  tabsEl.innerHTML = '';
-  const allTab = document.createElement('button');
-  allTab.className = 'tab' + (activeDay==='all' ? ' active' : '');
-  allTab.textContent = 'All';
-  allTab.onclick = () => { activeDay='all'; renderAll(); };
-  tabsEl.appendChild(allTab);
-  data.forEach((g, gi) => {
-    const btn = document.createElement('button');
-    const hasDone = g.tasks.some(t=>t.done);
-    btn.className = 'tab' + (activeDay===gi?' active':'') + (hasDone && activeDay!==gi?' has-done':'');
-    btn.textContent = shortDay(g.day);
-    btn.onclick = () => { activeDay=gi; renderAll(); };
-    tabsEl.appendChild(btn);
-  });
+    <!-- TASKS -->
+    <div class="page" id="page-tasks">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Task <em>Board</em></div>
+          <div class="page-sub">Track, complete, earn points</div>
+        </div>
+        <button class="btn" id="add-task-btn">+ Add Task</button>
+      </div>
+      <div class="grid4" style="margin-bottom:24px" id="task-stats"></div>
+      <!-- Points bar -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Points Earned</div>
+          <div style="font-family:var(--font-serif);font-size:28px;color:var(--gold)" id="pts-display">0</div>
+        </div>
+        <div class="prog-wrap"><div class="prog-fill" id="pts-prog"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px" id="pts-sub"></div>
+      </div>
+      <!-- Voice add row -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="quick-task" placeholder="Quick add task..." style="flex:1;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--ink);font-family:var(--font-mono);font-size:13px;padding:6px 0;outline:none">
+          <button class="mic-btn" id="mic-btn" title="Speak task">🎙</button>
+          <select id="task-priority-quick" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:11px;padding:6px 8px;border-radius:2px;outline:none;cursor:pointer">
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="low">Low</option>
+          </select>
+          <button class="btn btn-sm" id="quick-add-btn">Add</button>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Active Tasks <span id="active-tasks-count"></span></div>
+        <div class="card" id="tasks-active-list"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Completed <span id="done-tasks-count"></span></div>
+        <div class="card" id="tasks-done-list"></div>
+      </div>
+    </div>
 
-  const container = document.getElementById('days-container');
-  container.innerHTML = '';
-  const groups = activeDay==='all' ? data.map((g,i)=>[i,g]) : [[activeDay, data[activeDay]]];
-  groups.forEach(([gi, group]) => {
-    const div = document.createElement('div');
-    div.className = 'day-group';
-    const h = document.createElement('div');
-    h.className = 'day-heading';
-    h.textContent = group.day;
-    div.appendChild(h);
-    const ul = document.createElement('ul');
-    ul.className = 'list';
-    group.tasks.forEach((task, ti) => {
-      const li = document.createElement('li');
-      li.className = 'item' + (task.done?' done':'');
-      li.innerHTML = `<div class="check" onclick="toggle(${gi},${ti})"><svg class="check-mark" viewBox="0 0 9 6" fill="none"><path d="M1 3L3.5 5.5 8 1" stroke="#f5f2ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="label">${esc(task.text)}</span>`;
-      ul.appendChild(li);
-    });
-    div.appendChild(ul);
-    container.appendChild(div);
-  });
+    <!-- SCHEDULE -->
+    <div class="page" id="page-schedule">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Daily <em>Schedule</em></div>
+          <div class="page-sub">Plan your day, block your time</div>
+        </div>
+        <button class="btn" id="add-sched-btn">+ Add Block</button>
+      </div>
+      <div class="grid2" style="margin-bottom:24px">
+        <div class="card">
+          <div class="card-label">Blocks Today</div>
+          <div class="card-value gold" id="sched-count">0</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Hours Planned</div>
+          <div class="card-value" id="sched-hours">0h</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Today's Time Blocks</div>
+        <div class="card" id="sched-list"></div>
+      </div>
+    </div>
 
-  const sel = document.getElementById('day-select');
-  const prev = sel.value;
-  sel.innerHTML = '';
-  data.forEach((g,i) => { const o = document.createElement('option'); o.value=i; o.textContent=shortDay(g.day); sel.appendChild(o); });
-  if (prev) sel.value = prev;
-}
+    <!-- MEETINGS -->
+    <div class="page" id="page-meetings">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Meeting <em>Log</em></div>
+          <div class="page-sub">Track all your meetings &amp; calls</div>
+        </div>
+        <button class="btn" id="add-mtg-btn">+ Add Meeting</button>
+      </div>
+      <div class="grid3" style="margin-bottom:24px" id="mtg-stats"></div>
+      <div class="section">
+        <div class="section-title">Upcoming</div>
+        <div class="card" id="mtg-upcoming"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Past Meetings</div>
+        <div class="card" id="mtg-past"></div>
+      </div>
+    </div>
 
-function toggle(gi, ti) {
-  const task = data[gi].tasks[ti];
-  task.done = !task.done;
-  points = task.done ? points + 10 : Math.max(0, points - 10);
-  save(); renderAll();
-  if (task.done) { bump(); showToast(); }
-}
+    <!-- FINANCE -->
+    <div class="page" id="page-finance">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Finance <em>Tracker</em></div>
+          <div class="page-sub">Income, expenses, balance</div>
+        </div>
+        <button class="btn" id="add-tx-btn">+ Add Transaction</button>
+      </div>
+      <div class="grid3" style="margin-bottom:24px" id="fin-stats"></div>
+      <div class="grid2" style="margin-bottom:24px">
+        <div class="section">
+          <div class="section-title">Recent Transactions</div>
+          <div class="card" id="tx-list"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">Monthly Overview</div>
+          <div class="card" id="fin-chart-card">
+            <div style="font-size:10px;color:var(--muted2);margin-bottom:4px">Income vs Expense (last 6 months)</div>
+            <div class="bar-chart" id="fin-chart"></div>
+            <div style="display:flex;gap:14px;margin-top:8px">
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted2)"><div style="width:8px;height:8px;background:rgba(46,125,79,.4);border-radius:1px"></div>Income</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted2)"><div style="width:8px;height:8px;background:rgba(192,57,43,.4);border-radius:1px"></div>Expense</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-function addTask() {
-  const input = document.getElementById('new-task');
-  const text = input.value.trim();
-  if (!text) return;
-  const gi = parseInt(document.getElementById('day-select').value);
-  data[gi].tasks.push({ text, done: false });
-  input.value = '';
-  save(); renderAll();
-}
+  </main>
+</div>
 
-function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+<!-- MODALS -->
+<!-- Task Modal -->
+<div class="modal-bg" id="modal-task">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Task</div>
+      <button class="modal-close" data-close="modal-task">×</button>
+    </div>
+    <div class="field"><label>Task Title</label><input type="text" id="t-title" placeholder="What needs to be done?"></div>
+    <div class="inline-fields">
+      <div class="field"><label>Priority</label>
+        <select id="t-priority"><option value="normal">Normal</option><option value="high">High ↑</option><option value="low">Low ↓</option></select>
+      </div>
+      <div class="field"><label>Due Date</label><input type="date" id="t-due"></div>
+    </div>
+    <div class="field"><label>Category</label>
+      <select id="t-cat"><option value="work">Work</option><option value="personal">Personal</option><option value="business">Business</option><option value="finance">Finance</option><option value="other">Other</option></select>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="t-notes" placeholder="Optional notes..."></textarea></div>
+    <div class="modal-actions"><button class="btn btn-ghost" data-close="modal-task">Cancel</button><button class="btn" id="save-task-btn">Save Task</button></div>
+  </div>
+</div>
 
-function bump() {
-  const el = document.getElementById('pts');
-  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
-  setTimeout(() => el.classList.remove('bump'), 300);
-}
+<!-- Schedule Modal -->
+<div class="modal-bg" id="modal-sched">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Time Block</div>
+      <button class="modal-close" data-close="modal-sched">×</button>
+    </div>
+    <div class="field"><label>Title</label><input type="text" id="s-title" placeholder="e.g. Deep work, Lunch, Client call..."></div>
+    <div class="inline-fields">
+      <div class="field"><label>Start Time</label><input type="time" id="s-start"></div>
+      <div class="field"><label>End Time</label><input type="time" id="s-end"></div>
+    </div>
+    <div class="inline-fields">
+      <div class="field"><label>Date</label><input type="date" id="s-date"></div>
+      <div class="field"><label>Type</label>
+        <select id="s-type"><option value="work">Work</option><option value="focus">Focus</option><option value="personal">Personal</option><option value="admin">Admin</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="s-notes" placeholder="Optional..."></textarea></div>
+    <div class="modal-actions"><button class="btn btn-ghost" data-close="modal-sched">Cancel</button><button class="btn" id="save-sched-btn">Save Block</button></div>
+  </div>
+</div>
 
-let toastTimer;
-function showToast() {
-  clearTimeout(toastTimer);
-  const t = document.getElementById('toast');
-  t.classList.add('show');
-  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
-}
+<!-- Meeting Modal -->
+<div class="modal-bg" id="modal-mtg">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Meeting</div>
+      <button class="modal-close" data-close="modal-mtg">×</button>
+    </div>
+    <div class="field"><label>Title</label><input type="text" id="m-title" placeholder="Meeting title..."></div>
+    <div class="inline-fields">
+      <div class="field"><label>Date</label><input type="date" id="m-date"></div>
+      <div class="field"><label>Time</label><input type="time" id="m-time"></div>
+    </div>
+    <div class="inline-fields">
+      <div class="field"><label>Duration</label>
+        <select id="m-dur"><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hour</option><option value="90">1.5 hours</option><option value="120">2 hours</option></select>
+      </div>
+      <div class="field"><label>Type</label>
+        <select id="m-type"><option value="call">Call</option><option value="video">Video</option><option value="in-person">In-person</option><option value="internal">Internal</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Attendees</label><input type="text" id="m-attendees" placeholder="Who's joining?"></div>
+    <div class="field"><label>Agenda / Notes</label><textarea id="m-notes" placeholder="What's on the agenda?"></textarea></div>
+    <div class="modal-actions"><button class="btn btn-ghost" data-close="modal-mtg">Cancel</button><button class="btn" id="save-mtg-btn">Save Meeting</button></div>
+  </div>
+</div>
 
-document.getElementById('new-task').addEventListener('keydown', e => { if (e.key==='Enter') addTask(); });
+<!-- Transaction Modal -->
+<div class="modal-bg" id="modal-tx">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Transaction</div>
+      <button class="modal-close" data-close="modal-tx">×</button>
+    </div>
+    <div class="inline-fields">
+      <div class="field"><label>Type</label>
+        <select id="tx-type"><option value="income">Income</option><option value="expense">Expense</option></select>
+      </div>
+      <div class="field"><label>Amount (MYR)</label><input type="number" id="tx-amount" placeholder="0.00" step="0.01" min="0"></div>
+    </div>
+    <div class="field"><label>Description</label><input type="text" id="tx-desc" placeholder="What was this for?"></div>
+    <div class="inline-fields">
+      <div class="field"><label>Category</label>
+        <select id="tx-cat">
+          <option value="salary">Salary</option><option value="freelance">Freelance</option><option value="sales">Sales</option>
+          <option value="food">Food</option><option value="transport">Transport</option><option value="software">Software</option>
+          <option value="marketing">Marketing</option><option value="office">Office</option><option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Date</label><input type="date" id="tx-date"></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" data-close="modal-tx">Cancel</button><button class="btn" id="save-tx-btn">Save</button></div>
+  </div>
+</div>
 
-// Voice input
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const micBtn = document.getElementById('mic-btn');
-let recognition = null;
-let listening = false;
+<div class="toast" id="toast"></div>
 
-if (!SpeechRecognition) {
-  micBtn.classList.add('no-support');
-  micBtn.title = 'Voice not supported in this browser';
-} else {
-  recognition = new SpeechRecognition();
-  recognition.lang = 'en-US';
-  recognition.interimResults = true;
-  recognition.continuous = false;
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-  recognition.onresult = (e) => {
-    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
-    document.getElementById('new-task').value = transcript;
-    if (e.results[e.results.length - 1].isFinal) stopMic();
+// ── Firebase ──
+const fbApp = initializeApp({
+  apiKey:"AIzaSyA1-o21Ek1oGmAkKNlH21ravHr138RUhoM",
+  authDomain:"personal-checklist-c9758.firebaseapp.com",
+  projectId:"personal-checklist-c9758",
+  appId:"1:556843535886:web:d5f0502dd0afbc6549f65f"
+});
+const db = getFirestore(fbApp);
+const auth = getAuth(fbApp);
+const provider = new GoogleAuthProvider();
+
+// ── State ──
+let uid = null, unsub = null, saving = false;
+let state = { tasks:[], schedule:[], meetings:[], transactions:[], points:0 };
+
+// ── Auth ──
+document.getElementById('google-btn').addEventListener('click', async () => {
+  try { await signInWithPopup(auth, provider); }
+  catch { showErr('Sign-in failed. Try again.'); }
+});
+document.getElementById('signout-btn').addEventListener('click', () => {
+  if (uid === 'guest') { exitGuest(); } else { signOut(auth); }
+});
+
+// ── Guest Mode ──
+document.getElementById('guest-btn').addEventListener('click', enterGuest);
+
+function enterGuest() {
+  uid = 'guest';
+  const d = new Date(); const dd = d.toISOString().split('T')[0];
+  const yest = new Date(d); yest.setDate(yest.getDate()-1); const yd = yest.toISOString().split('T')[0];
+  const tom  = new Date(d); tom.setDate(tom.getDate()+1);  const td = tom.toISOString().split('T')[0];
+  state = {
+    points: 40,
+    tasks: [
+      { id:'t1', title:'Design 5 Canva templates', priority:'high', due:dd, cat:'work', done:true,  createdAt:Date.now() },
+      { id:'t2', title:'Send outreach messages to leads', priority:'normal', due:dd, cat:'business', done:true, createdAt:Date.now() },
+      { id:'t3', title:'Write homepage content outline', priority:'normal', due:dd, cat:'work', done:false, createdAt:Date.now() },
+      { id:'t4', title:'Define Mist & Mism website structure', priority:'high', due:td, cat:'business', done:false, createdAt:Date.now() },
+      { id:'t5', title:'Review Q1 financial summary', priority:'low', due:td, cat:'finance', done:false, createdAt:Date.now() },
+      { id:'t6', title:'Follow up with client responses', priority:'normal', due:td, cat:'work', done:false, createdAt:Date.now() },
+    ],
+    schedule: [
+      { id:'s1', title:'Morning deep work', start:'08:00', end:'10:00', date:dd, type:'focus', notes:'No distractions — design sprint' },
+      { id:'s2', title:'Team standup', start:'10:00', end:'10:30', date:dd, type:'work', notes:'' },
+      { id:'s3', title:'Lunch break', start:'12:30', end:'13:30', date:dd, type:'personal', notes:'' },
+      { id:'s4', title:'Client proposal writing', start:'14:00', end:'16:00', date:dd, type:'work', notes:'Draft Mist & Mism proposal' },
+      { id:'s5', title:'Admin & emails', start:'16:00', end:'17:00', date:dd, type:'admin', notes:'' },
+    ],
+    meetings: [
+      { id:'m1', title:'Mist & Mism Kickoff Call', date:td, time:'10:00', duration:'60', type:'video', attendees:'Sarah, Ahmad, Lee', notes:'Discuss website scope and timeline' },
+      { id:'m2', title:'Weekly Sync', date:td, time:'14:00', duration:'30', type:'internal', attendees:'Full team', notes:'Progress updates' },
+      { id:'m3', title:'Lead Discovery Call', date:dd, time:'11:00', duration:'45', type:'call', attendees:'Prospect — Zara Boutique', notes:'Understand their design needs' },
+      { id:'m4', title:'Brand Review', date:yd, time:'15:00', duration:'60', type:'in-person', attendees:'Client', notes:'Presented 3 logo concepts' },
+    ],
+    transactions: [
+      { id:'x1', type:'income',  amount:4500,  desc:'Freelance project — Doner Club', cat:'freelance', date:dd },
+      { id:'x2', type:'income',  amount:1200,  desc:'Template sales (March)', cat:'sales', date:dd },
+      { id:'x3', type:'expense', amount:49,    desc:'Canva Pro subscription', cat:'software', date:dd },
+      { id:'x4', type:'expense', amount:320,   desc:'Facebook Ads campaign', cat:'marketing', date:yd },
+      { id:'x5', type:'income',  amount:2800,  desc:'Client retainer — Feb', cat:'freelance', date:yd },
+      { id:'x6', type:'expense', amount:85,    desc:'Office supplies', cat:'office', date:yd },
+      { id:'x7', type:'expense', amount:120,   desc:'Transport & fuel', cat:'transport', date:yd },
+      { id:'x8', type:'income',  amount:600,   desc:'Stock asset sales', cat:'sales', date:yd },
+    ]
   };
-
-  recognition.onerror = () => stopMic();
-  recognition.onend = () => stopMic();
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+  document.getElementById('s-user').textContent = 'Test User (Guest)';
+  setSyncStatus('synced', '● demo mode');
+  setGreeting(); renderAll();
 }
 
-function toggleMic() {
-  if (!recognition) return;
-  listening ? stopMic() : startMic();
+function exitGuest() {
+  uid = null;
+  state = { tasks:[], schedule:[], meetings:[], transactions:[], points:0 };
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').classList.remove('show');
 }
 
-function startMic() {
-  listening = true;
-  micBtn.classList.add('listening');
-  micBtn.title = 'Listening... click to stop';
-  document.getElementById('new-task').placeholder = 'listening...';
-  recognition.start();
+onAuthStateChanged(auth, user => {
+  if (user) {
+    uid = user.uid;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').classList.add('show');
+    document.getElementById('s-user').textContent = user.displayName || user.email;
+    setGreeting();
+    startSync();
+  } else if (uid !== 'guest') {
+    uid = null;
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').classList.remove('show');
+    if (unsub) { unsub(); unsub = null; }
+  }
+});
+
+function showErr(msg) {
+  const e = document.getElementById('login-err');
+  e.style.display = 'block'; e.textContent = msg;
 }
 
-function stopMic() {
-  listening = false;
-  micBtn.classList.remove('listening');
-  micBtn.title = 'Speak task';
-  document.getElementById('new-task').placeholder = 'task description...';
-  try { recognition.stop(); } catch(e) {}
+// ── Sync ──
+function startSync() {
+  const ref = doc(db, 'users', uid, 'workspace', 'main');
+  setSyncStatus('syncing','● syncing...');
+  unsub = onSnapshot(ref, snap => {
+    if (snap.exists()) {
+      const d = snap.data();
+      state.tasks        = d.tasks        || [];
+      state.schedule     = d.schedule     || [];
+      state.meetings     = d.meetings     || [];
+      state.transactions = d.transactions || [];
+      state.points       = d.points       || 0;
+    } else {
+      saveState();
+    }
+    setSyncStatus('synced','● synced');
+    renderAll();
+  }, () => setSyncStatus('err','● sync error'));
 }
 
-renderAll();
+async function saveState() {
+  if (!uid || uid === 'guest' || saving) return;
+  saving = true;
+  setSyncStatus('syncing','● saving...');
+  try {
+    await setDoc(doc(db,'users',uid,'workspace','main'), state);
+    setSyncStatus('synced','● synced');
+  } catch { setSyncStatus('err','● save failed'); }
+  saving = false;
+}
+
+function setSyncStatus(cls, txt) {
+  const el = document.getElementById('sync-status');
+  el.className = 'sync-dot ' + cls; el.textContent = txt;
+}
+
+// ── Navigation ──
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    const page = el.dataset.page;
+    document.getElementById('page-'+page)?.classList.add('active');
+  });
+});
+
+// ── Modals ──
+document.querySelectorAll('[data-close]').forEach(btn => {
+  btn.addEventListener('click', () => closeModal(btn.dataset.close));
+});
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target===bg) closeModal(bg.id); });
+});
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── Greeting ──
+function setGreeting() {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+  document.getElementById('greeting-time').textContent = g;
+  const now = new Date();
+  const ds = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('today-date').textContent = ds;
+  document.getElementById('welcome-date').textContent = ds;
+  // set default dates in modals
+  const today = now.toISOString().split('T')[0];
+  ['t-due','s-date','m-date','tx-date'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = today;
+  });
+}
+
+// ── Render All ──
+function renderAll() {
+  renderOverview();
+  renderTasks();
+  renderSchedule();
+  renderMeetings();
+  renderFinance();
+  updateBadges();
+}
+
+// ── OVERVIEW ──
+function renderOverview() {
+  const activeTasks = state.tasks.filter(t => !t.done).length;
+  const todayMtgs = state.meetings.filter(m => m.date === today()).length;
+  const balance = state.transactions.reduce((a,t) => t.type==='income'?a+t.amount:a-t.amount, 0);
+  const todayBlocks = state.schedule.filter(s => s.date === today()).length;
+
+  document.getElementById('overview-stats').innerHTML = `
+    ${statCard('Active Tasks', activeTasks, activeTasks>0?'gold':'', '')}
+    ${statCard('Today\'s Meetings', todayMtgs, 'blue', '')}
+    ${statCard('Schedule Blocks', todayBlocks, '', '')}
+    ${statCard('Balance', 'MYR '+fmt(balance), balance>=0?'green':'red', '')}
+  `;
+
+  // Today tasks preview
+  const todayTasks = state.tasks.filter(t => !t.done).slice(0,5);
+  const tEl = document.getElementById('ov-tasks-list');
+  document.getElementById('ov-tasks-count').textContent = '('+activeTasks+')';
+  if (!todayTasks.length) { tEl.innerHTML = '<div class="empty">No active tasks</div>'; }
+  else tEl.innerHTML = todayTasks.map(t => `
+    <div class="task-item">
+      <div class="task-check" onclick="quickToggle('${t.id}')">
+        <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5 7 1" stroke="var(--bg)" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <span class="task-label">${esc(t.title)}</span>
+      ${t.priority==='high'?'<span class="tag red">high</span>':''}
+    </div>`).join('');
+
+  // Meetings preview
+  const upcoming = state.meetings.filter(m => m.date >= today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
+  const mEl = document.getElementById('ov-mtg-list');
+  document.getElementById('ov-mtg-count').textContent = '('+upcoming.length+')';
+  if (!upcoming.length) { mEl.innerHTML = '<div class="empty">No upcoming meetings</div>'; }
+  else mEl.innerHTML = upcoming.map(m => `
+    <div class="meeting-item">
+      <div class="meeting-time"><div class="meeting-time-val">${m.time||'--:--'}</div><div class="meeting-time-date">${m.date}</div></div>
+      <div class="meeting-body"><div class="meeting-title">${esc(m.title)}</div><div class="meeting-tags"><span class="tag blue">${m.type}</span></div></div>
+    </div>`).join('');
+
+  // Finance snapshot
+  const income = state.transactions.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0);
+  const expense = state.transactions.filter(t=>t.type==='expense').reduce((a,t)=>a+t.amount,0);
+  document.getElementById('ov-finance').innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <div><div style="font-size:10px;color:var(--muted);margin-bottom:3px">Income</div><div style="color:var(--green);font-family:var(--font-serif);font-size:20px">MYR ${fmt(income)}</div></div>
+      <div style="text-align:right"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">Expenses</div><div style="color:var(--red);font-family:var(--font-serif);font-size:20px">MYR ${fmt(expense)}</div></div>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" style="width:${income>0?Math.min(100,(expense/income)*100):0}%;background:var(--red)"></div></div>
+    <div style="font-size:10px;color:var(--muted);margin-top:5px">Spent ${income>0?Math.round((expense/income)*100):0}% of income</div>`;
+}
+
+window.quickToggle = function(id) {
+  const t = state.tasks.find(x=>x.id===id); if (!t) return;
+  t.done = !t.done;
+  state.points = t.done ? state.points+10 : Math.max(0, state.points-10);
+  if (t.done) { showToast('✦ +10 pts — task done!'); bump(); }
+  saveState(); renderAll();
+};
+
+// ── TASKS ──
+function renderTasks() {
+  const active = state.tasks.filter(t=>!t.done);
+  const done   = state.tasks.filter(t=>t.done);
+  const total  = state.tasks.length;
+  const pct    = total ? Math.round(done.length/total*100) : 0;
+
+  document.getElementById('task-stats').innerHTML = `
+    ${statCard('Total Tasks', total, '', '')}
+    ${statCard('Active', active.length, 'gold', '')}
+    ${statCard('Completed', done.length, 'green', '')}
+    ${statCard('Progress', pct+'%', pct===100?'green':'', '')}
+  `;
+
+  document.getElementById('pts-display').textContent = state.points;
+  document.getElementById('pts-prog').style.width = Math.min(100, state.points/10)+'%';
+  document.getElementById('pts-sub').textContent = state.points + ' pts earned · ' + done.length + ' of ' + total + ' tasks done';
+  document.getElementById('active-tasks-count').textContent = '('+active.length+')';
+  document.getElementById('done-tasks-count').textContent = '('+done.length+')';
+
+  const al = document.getElementById('tasks-active-list');
+  if (!active.length) al.innerHTML = '<div class="empty">No active tasks — add one above</div>';
+  else al.innerHTML = active.map(t => taskRow(t)).join('');
+
+  const dl = document.getElementById('tasks-done-list');
+  if (!done.length) dl.innerHTML = '<div class="empty">Completed tasks will appear here</div>';
+  else dl.innerHTML = done.map(t => taskRow(t)).join('');
+}
+
+function taskRow(t) {
+  const priTag = t.priority==='high'?'<span class="tag red">high</span>':t.priority==='low'?'<span class="tag">low</span>':'';
+  const catTag = `<span class="tag">${t.cat||'work'}</span>`;
+  const dueTag = t.due?`<span class="task-meta">${t.due}</span>`:'';
+  return `<div class="task-item${t.done?' done':''}">
+    <div class="task-check" onclick="toggleTask('${t.id}')">
+      <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5 7 1" stroke="var(--bg)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1">
+      <div class="task-label">${esc(t.title)}</div>
+      <div style="display:flex;gap:5px;margin-top:4px">${priTag}${catTag}</div>
+    </div>
+    ${dueTag}
+    ${t.done?'<span class="pts-badge">+10</span>':''}
+    <button class="task-del" onclick="deleteTask('${t.id}')">×</button>
+  </div>`;
+}
+
+window.toggleTask = function(id) {
+  const t = state.tasks.find(x=>x.id===id); if (!t) return;
+  t.done = !t.done;
+  state.points = t.done ? state.points+10 : Math.max(0,state.points-10);
+  if (t.done) { showToast('✦ +10 pts — task complete!'); bump(); }
+  saveState(); renderAll();
+};
+window.deleteTask = function(id) {
+  const t = state.tasks.find(x=>x.id===id);
+  if (t?.done) state.points = Math.max(0,state.points-10);
+  state.tasks = state.tasks.filter(x=>x.id!==id);
+  saveState(); renderAll();
+};
+
+// ── SCHEDULE ──
+function renderSchedule() {
+  const todayBlocks = state.schedule.filter(s=>s.date===today()).sort((a,b)=>a.start.localeCompare(b.start));
+  document.getElementById('sched-count').textContent = todayBlocks.length;
+  let totalMins = 0;
+  todayBlocks.forEach(b => {
+    if (b.start && b.end) {
+      const [sh,sm]=b.start.split(':').map(Number), [eh,em]=b.end.split(':').map(Number);
+      totalMins += (eh*60+em)-(sh*60+sm);
+    }
+  });
+  document.getElementById('sched-hours').textContent = (totalMins/60).toFixed(1)+'h';
+  const el = document.getElementById('sched-list');
+  if (!todayBlocks.length) { el.innerHTML='<div class="empty">No time blocks for today</div>'; return; }
+  el.innerHTML = todayBlocks.map(b=>`
+    <div class="sched-item">
+      <div class="sched-bar ${b.type||'work'}"></div>
+      <div class="sched-body">
+        <div class="sched-time">${b.start||''} – ${b.end||''}</div>
+        <div class="sched-title">${esc(b.title)}</div>
+        ${b.notes?`<div class="sched-note">${esc(b.notes)}</div>`:''}
+      </div>
+      <span class="tag ${b.type==='focus'?'gold':b.type==='personal'?'green':b.type==='work'?'blue':''}">${b.type}</span>
+      <button class="sched-del" onclick="deleteSched('${b.id}')">×</button>
+    </div>`).join('');
+}
+window.deleteSched = function(id) { state.schedule=state.schedule.filter(x=>x.id!==id); saveState(); renderAll(); };
+
+// ── MEETINGS ──
+function renderMeetings() {
+  const upcoming = state.meetings.filter(m=>m.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+  const past     = state.meetings.filter(m=>m.date<today()).sort((a,b)=>b.date.localeCompare(a.date));
+  const thisMonth = state.meetings.filter(m=>m.date.startsWith(new Date().toISOString().slice(0,7)));
+  document.getElementById('mtg-stats').innerHTML = `
+    ${statCard('Total Meetings', state.meetings.length, '', '')}
+    ${statCard('Upcoming', upcoming.length, 'gold', '')}
+    ${statCard('This Month', thisMonth.length, 'blue', '')}
+  `;
+  const uEl = document.getElementById('mtg-upcoming');
+  if (!upcoming.length) uEl.innerHTML = '<div class="empty">No upcoming meetings</div>';
+  else uEl.innerHTML = upcoming.map(m=>mtgRow(m)).join('');
+  const pEl = document.getElementById('mtg-past');
+  if (!past.length) pEl.innerHTML = '<div class="empty">No past meetings</div>';
+  else pEl.innerHTML = past.slice(0,10).map(m=>mtgRow(m)).join('');
+}
+function mtgRow(m) {
+  const typeColor = {call:'blue',video:'gold','in-person':'green',internal:''}[m.type]||'';
+  return `<div class="meeting-item">
+    <div class="meeting-time"><div class="meeting-time-val">${m.time||'--'}</div><div class="meeting-time-date">${m.date}</div></div>
+    <div class="meeting-body">
+      <div class="meeting-title">${esc(m.title)}</div>
+      ${m.attendees?`<div style="font-size:10px;color:var(--muted);margin-top:2px">${esc(m.attendees)}</div>`:''}
+      <div class="meeting-tags"><span class="tag ${typeColor}">${m.type}</span>${m.duration?`<span class="tag">${m.duration}min</span>`:''}</div>
+      ${m.notes?`<div style="font-size:11px;color:var(--muted2);margin-top:5px;line-height:1.5">${esc(m.notes)}</div>`:''}
+    </div>
+    <button class="meeting-del" onclick="deleteMtg('${m.id}')">×</button>
+  </div>`;
+}
+window.deleteMtg = function(id) { state.meetings=state.meetings.filter(x=>x.id!==id); saveState(); renderAll(); };
+
+// ── FINANCE ──
+function renderFinance() {
+  const income  = state.transactions.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0);
+  const expense = state.transactions.filter(t=>t.type==='expense').reduce((a,t)=>a+t.amount,0);
+  const balance = income - expense;
+  document.getElementById('fin-stats').innerHTML = `
+    ${statCard('Total Income', 'MYR '+fmt(income), 'green', '')}
+    ${statCard('Total Expense', 'MYR '+fmt(expense), 'red', '')}
+    ${statCard('Balance', 'MYR '+fmt(balance), balance>=0?'green':'red', '')}
+  `;
+  const tEl = document.getElementById('tx-list');
+  const sorted = [...state.transactions].sort((a,b)=>b.date.localeCompare(a.date));
+  if (!sorted.length) tEl.innerHTML='<div class="empty">No transactions yet</div>';
+  else tEl.innerHTML = sorted.slice(0,20).map(t=>`
+    <div class="tx-item">
+      <div class="tx-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div>
+      <div class="tx-body"><div class="tx-label">${esc(t.desc)}</div><div class="tx-cat">${t.cat}</div></div>
+      <div class="tx-date">${t.date}</div>
+      <div class="tx-amount ${t.type}">${t.type==='income'?'+':'-'}MYR ${fmt(t.amount)}</div>
+      <button class="tx-del" onclick="deleteTx('${t.id}')">×</button>
+    </div>`).join('');
+  renderChart();
+}
+window.deleteTx = function(id) { state.transactions=state.transactions.filter(x=>x.id!==id); saveState(); renderAll(); };
+
+function renderChart() {
+  const months = [];
+  for (let i=5;i>=0;i--) {
+    const d = new Date(); d.setMonth(d.getMonth()-i);
+    months.push(d.toISOString().slice(0,7));
+  }
+  const maxVal = Math.max(1,...months.map(m=>{
+    const inc = state.transactions.filter(t=>t.date.startsWith(m)&&t.type==='income').reduce((a,t)=>a+t.amount,0);
+    const exp = state.transactions.filter(t=>t.date.startsWith(m)&&t.type==='expense').reduce((a,t)=>a+t.amount,0);
+    return Math.max(inc,exp);
+  }));
+  document.getElementById('fin-chart').innerHTML = months.map(m=>{
+    const inc = state.transactions.filter(t=>t.date.startsWith(m)&&t.type==='income').reduce((a,t)=>a+t.amount,0);
+    const exp = state.transactions.filter(t=>t.date.startsWith(m)&&t.type==='expense').reduce((a,t)=>a+t.amount,0);
+    const label = new Date(m+'-01').toLocaleDateString('en',{month:'short'});
+    return `<div class="bar-col">
+      <div style="display:flex;gap:2px;align-items:flex-end;height:64px">
+        <div class="bar-fill income-bar" style="height:${Math.round((inc/maxVal)*64)}px"></div>
+        <div class="bar-fill expense-bar" style="height:${Math.round((exp/maxVal)*64)}px"></div>
+      </div>
+      <div class="bar-month">${label}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Stat Card ──
+function statCard(label, value, color, sub) {
+  return `<div class="card"><div class="card-label">${label}</div><div class="card-value ${color}">${value}</div>${sub?`<div class="card-sub">${sub}</div>`:''}</div>`;
+}
+
+// ── Badges ──
+function updateBadges() {
+  const active = state.tasks.filter(t=>!t.done).length;
+  const badge = document.getElementById('badge-tasks');
+  badge.textContent = active;
+  badge.style.display = active ? 'inline' : 'none';
+}
+
+// ── Save buttons ──
+document.getElementById('save-task-btn').addEventListener('click', () => {
+  const title = document.getElementById('t-title').value.trim();
+  if (!title) return;
+  state.tasks.push({ id:uid4(), title, priority:document.getElementById('t-priority').value, due:document.getElementById('t-due').value, cat:document.getElementById('t-cat').value, notes:document.getElementById('t-notes').value, done:false, createdAt:Date.now() });
+  closeModal('modal-task'); clearFields(['t-title','t-notes']); saveState(); renderAll(); showToast('Task added');
+});
+
+document.getElementById('save-sched-btn').addEventListener('click', () => {
+  const title = document.getElementById('s-title').value.trim();
+  if (!title) return;
+  state.schedule.push({ id:uid4(), title, start:document.getElementById('s-start').value, end:document.getElementById('s-end').value, date:document.getElementById('s-date').value, type:document.getElementById('s-type').value, notes:document.getElementById('s-notes').value });
+  closeModal('modal-sched'); clearFields(['s-title','s-notes']); saveState(); renderAll(); showToast('Schedule block added');
+});
+
+document.getElementById('save-mtg-btn').addEventListener('click', () => {
+  const title = document.getElementById('m-title').value.trim();
+  if (!title) return;
+  state.meetings.push({ id:uid4(), title, date:document.getElementById('m-date').value, time:document.getElementById('m-time').value, duration:document.getElementById('m-dur').value, type:document.getElementById('m-type').value, attendees:document.getElementById('m-attendees').value, notes:document.getElementById('m-notes').value });
+  closeModal('modal-mtg'); clearFields(['m-title','m-attendees','m-notes']); saveState(); renderAll(); showToast('Meeting saved');
+});
+
+document.getElementById('save-tx-btn').addEventListener('click', () => {
+  const amount = parseFloat(document.getElementById('tx-amount').value);
+  const desc   = document.getElementById('tx-desc').value.trim();
+  if (!amount || amount<=0 || !desc) return;
+  state.transactions.push({ id:uid4(), type:document.getElementById('tx-type').value, amount, desc, cat:document.getElementById('tx-cat').value, date:document.getElementById('tx-date').value });
+  closeModal('modal-tx'); clearFields(['tx-amount','tx-desc']); saveState(); renderAll(); showToast('Transaction saved');
+});
+
+// Quick task
+document.getElementById('quick-add-btn').addEventListener('click', quickAdd);
+document.getElementById('quick-task').addEventListener('keydown', e => { if (e.key==='Enter') quickAdd(); });
+function quickAdd() {
+  const input = document.getElementById('quick-task');
+  const title = input.value.trim(); if (!title) return;
+  state.tasks.push({ id:uid4(), title, priority:document.getElementById('task-priority-quick').value, done:false, cat:'work', createdAt:Date.now() });
+  input.value = ''; saveState(); renderAll(); showToast('Task added');
+}
+
+// Open modals
+document.getElementById('add-task-btn').addEventListener('click', () => openModal('modal-task'));
+document.getElementById('add-sched-btn').addEventListener('click', () => openModal('modal-sched'));
+document.getElementById('add-mtg-btn').addEventListener('click', () => openModal('modal-mtg'));
+document.getElementById('add-tx-btn').addEventListener('click', () => openModal('modal-tx'));
+
+// ── Voice ──
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const micBtn = document.getElementById('mic-btn');
+let recog = null, listening = false;
+if (!SR) { micBtn.classList.add('no-support'); micBtn.title='Not supported'; }
+else {
+  recog = new SR(); recog.lang='en-US'; recog.interimResults=true;
+  recog.onresult = e => { document.getElementById('quick-task').value = Array.from(e.results).map(r=>r[0].transcript).join(''); if(e.results[e.results.length-1].isFinal) stopMic(); };
+  recog.onerror = () => stopMic(); recog.onend = () => stopMic();
+}
+micBtn.addEventListener('click', () => { if(!recog) return; listening?stopMic():startMic(); });
+function startMic() { listening=true; micBtn.classList.add('listening'); document.getElementById('quick-task').placeholder='Listening...'; recog.start(); }
+function stopMic() { listening=false; micBtn.classList.remove('listening'); document.getElementById('quick-task').placeholder='Quick add task...'; try{recog.stop();}catch(e){} }
+
+// ── Toast ──
+let toastT;
+function showToast(msg) {
+  clearTimeout(toastT);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  toastT = setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+// ── Points bump ──
+function bump() {
+  const el = document.getElementById('pts-display');
+  if (!el) return;
+  el.style.transition='color .2s'; el.style.color='var(--gold2)';
+  setTimeout(()=>el.style.color='',400);
+}
+
+// ── Helpers ──
+function today() { return new Date().toISOString().split('T')[0]; }
+function fmt(n) { return (Math.abs(n)).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function esc(t='') { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function uid4() { return Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+function clearFields(ids) { ids.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; }); }
 </script>
 </body>
 </html>
