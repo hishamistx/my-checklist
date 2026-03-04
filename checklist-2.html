@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>30-Day Business Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f2ee; --ink: #1a1a18; --muted: #999;
+    --line: #e0dbd3; --accent: #c8a96e; --done: #c8c2b8;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: 'DM Mono', monospace; min-height: 100vh; display: flex; justify-content: center; padding: 60px 20px 100px; }
+  .container { width: 100%; max-width: 520px; }
+  header { margin-bottom: 48px; }
+  .title { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .subtitle { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 20px; }
+  .points-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .points-value { font-size: 52px; font-weight: 500; line-height: 1; transition: color 0.3s, transform 0.3s; }
+  .points-value.bump { color: var(--accent); transform: scale(1.05); }
+  .points-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .progress-bar { height: 2px; background: var(--line); border-radius: 1px; margin-top: 14px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: width 0.4s ease; }
+  .progress-text { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; margin-top: 6px; }
+  .tabs-wrap { overflow-x: auto; padding-bottom: 4px; margin-bottom: 28px; scrollbar-width: none; }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tabs { display: flex; gap: 6px; white-space: nowrap; }
+  .tab { background: none; border: 1px solid var(--line); border-radius: 2px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--muted); padding: 5px 10px; transition: all 0.15s; text-transform: uppercase; }
+  .tab:hover { border-color: var(--ink); color: var(--ink); }
+  .tab.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .tab.has-done { border-color: var(--accent); }
+  .day-group { margin-bottom: 36px; }
+  .day-heading { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 2px; }
+  .list { list-style: none; }
+  .item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); animation: fadeIn 0.18s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
+  .item.done .label { text-decoration: line-through; color: var(--done); }
+  .check { width: 17px; height: 17px; border: 1.5px solid var(--ink); border-radius: 2px; cursor: pointer; flex-shrink: 0; display: grid; place-items: center; transition: background 0.15s, border-color 0.15s; }
+  .item.done .check { background: var(--accent); border-color: var(--accent); }
+  .check-mark { width: 9px; height: 6px; opacity: 0; transition: opacity 0.15s; }
+  .item.done .check-mark { opacity: 1; }
+  .label { font-size: 13px; flex: 1; transition: color 0.2s; line-height: 1.4; }
+  .add-section { margin-top: 40px; border-top: 1.5px solid var(--ink); padding-top: 20px; }
+  .add-title { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .add-row { display: flex; gap: 8px; align-items: center; }
+  .add-row input, .add-row select { background: transparent; border: none; border-bottom: 1px solid var(--line); outline: none; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--ink); padding: 6px 0; }
+  .add-row input { flex: 1; }
+  .add-row select { color: var(--muted); font-size: 11px; cursor: pointer; }
+  .add-row input::placeholder { color: var(--muted); }
+  .add-btn { background: none; border: none; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 20px; color: var(--ink); line-height: 1; padding: 0 4px; transition: color 0.15s; }
+  .add-btn:hover { color: var(--accent); }
+  .mic-btn { background: none; border: 1px solid var(--line); border-radius: 2px; cursor: pointer; padding: 5px 7px; color: var(--muted); font-size: 13px; line-height: 1; transition: all 0.15s; flex-shrink: 0; }
+  .mic-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .mic-btn.listening { border-color: #d03; color: #d03; animation: pulse 1s infinite; }
+  .mic-btn.no-support { opacity: 0.3; cursor: not-allowed; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--ink); color: var(--bg); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; padding: 9px 14px; border-radius: 2px; opacity: 0; transform: translateY(6px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="title">30-Day Business Checklist</div>
+    <div class="subtitle">Canva Production &middot; Lead Outreach &middot; Mist &amp; Mism Website &mdash; Mar 5, 2026</div>
+    <div class="points-row">
+      <div class="points-value" id="pts">0</div>
+      <div class="points-label">points</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+    <div class="progress-text" id="prog-text"></div>
+  </header>
+  <div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
+  <div id="days-container"></div>
+  <div class="add-section">
+    <div class="add-title">add task</div>
+    <div class="add-row">
+      <input type="text" id="new-task" placeholder="task description..." maxlength="100">
+      <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Speak task">🎙</button>
+      <select id="day-select"></select>
+      <button class="add-btn" onclick="addTask()">+</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast">+10 pts</div>
+
+<script>
+const PRESET = [
+  ["Thursday, March 05, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
+  ["Friday, March 06, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
+  ["Saturday, March 07, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design homepage section layout","Gather visuals and portfolio assets"]],
+  ["Sunday, March 08, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write About page content","Start About page layout"]],
+  ["Monday, March 09, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write Services page content","Define service categories"]],
+  ["Tuesday, March 10, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design Services page layout","Organize portfolio projects"]],
+  ["Wednesday, March 11, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Build portfolio section layout","Review website progress"]],
+  ["Thursday, March 12, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
+  ["Friday, March 13, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
+  ["Saturday, March 14, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design homepage section layout","Gather visuals and portfolio assets"]],
+  ["Sunday, March 15, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write About page content","Start About page layout"]],
+  ["Monday, March 16, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write Services page content","Define service categories"]],
+  ["Tuesday, March 17, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design Services page layout","Organize portfolio projects"]],
+  ["Wednesday, March 18, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Build portfolio section layout","Review website progress"]],
+  ["Thursday, March 19, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
+  ["Friday, March 20, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
+  ["Saturday, March 21, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design homepage section layout","Gather visuals and portfolio assets"]],
+  ["Sunday, March 22, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write About page content","Start About page layout"]],
+  ["Monday, March 23, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write Services page content","Define service categories"]],
+  ["Tuesday, March 24, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design Services page layout","Organize portfolio projects"]],
+  ["Wednesday, March 25, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Build portfolio section layout","Review website progress"]],
+  ["Thursday, March 26, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
+  ["Friday, March 27, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
+  ["Saturday, March 28, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design homepage section layout","Gather visuals and portfolio assets"]],
+  ["Sunday, March 29, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write About page content","Start About page layout"]],
+  ["Monday, March 30, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Write Services page content","Define service categories"]],
+  ["Tuesday, March 31, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Design Services page layout","Organize portfolio projects"]],
+  ["Wednesday, April 01, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with leads","Build portfolio section layout","Review website progress"]],
+  ["Thursday, April 02, 2026", ["Design 5 Canva templates","Send 15 outreach messages from lead sheet","Follow up with existing leads","Define structure and sitemap for the Mist & Mism website","Write homepage content outline"]],
+  ["Friday, April 03, 2026", ["Design 5 Canva templates","Send outreach messages","Follow up with responses","Write full homepage content","Start homepage layout wireframe"]],
+];
+
+let data = JSON.parse(localStorage.getItem('biz30') || 'null');
+if (!data) {
+  data = PRESET.map(([day, tasks]) => ({ day, tasks: tasks.map(t => ({ text: t, done: false })) }));
+  localStorage.setItem('biz30', JSON.stringify(data));
+}
+let points = parseInt(localStorage.getItem('biz30pts') || '0');
+let activeDay = 'all';
+
+function save() { localStorage.setItem('biz30', JSON.stringify(data)); localStorage.setItem('biz30pts', points); }
+function shortDay(d) { const p = d.split(', '); return p[0].slice(0,3).toUpperCase() + ' ' + p[1].split(' ')[1]; }
+function totalDone() { return data.reduce((a,g) => a + g.tasks.filter(t=>t.done).length, 0); }
+function totalTasks() { return data.reduce((a,g) => a + g.tasks.length, 0); }
+
+function renderAll() {
+  document.getElementById('pts').textContent = points;
+  const done = totalDone(), total = totalTasks();
+  document.getElementById('prog').style.width = (done/total*100) + '%';
+  document.getElementById('prog-text').textContent = done + ' / ' + total + ' tasks done';
+
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  const allTab = document.createElement('button');
+  allTab.className = 'tab' + (activeDay==='all' ? ' active' : '');
+  allTab.textContent = 'All';
+  allTab.onclick = () => { activeDay='all'; renderAll(); };
+  tabsEl.appendChild(allTab);
+  data.forEach((g, gi) => {
+    const btn = document.createElement('button');
+    const hasDone = g.tasks.some(t=>t.done);
+    btn.className = 'tab' + (activeDay===gi?' active':'') + (hasDone && activeDay!==gi?' has-done':'');
+    btn.textContent = shortDay(g.day);
+    btn.onclick = () => { activeDay=gi; renderAll(); };
+    tabsEl.appendChild(btn);
+  });
+
+  const container = document.getElementById('days-container');
+  container.innerHTML = '';
+  const groups = activeDay==='all' ? data.map((g,i)=>[i,g]) : [[activeDay, data[activeDay]]];
+  groups.forEach(([gi, group]) => {
+    const div = document.createElement('div');
+    div.className = 'day-group';
+    const h = document.createElement('div');
+    h.className = 'day-heading';
+    h.textContent = group.day;
+    div.appendChild(h);
+    const ul = document.createElement('ul');
+    ul.className = 'list';
+    group.tasks.forEach((task, ti) => {
+      const li = document.createElement('li');
+      li.className = 'item' + (task.done?' done':'');
+      li.innerHTML = `<div class="check" onclick="toggle(${gi},${ti})"><svg class="check-mark" viewBox="0 0 9 6" fill="none"><path d="M1 3L3.5 5.5 8 1" stroke="#f5f2ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="label">${esc(task.text)}</span>`;
+      ul.appendChild(li);
+    });
+    div.appendChild(ul);
+    container.appendChild(div);
+  });
+
+  const sel = document.getElementById('day-select');
+  const prev = sel.value;
+  sel.innerHTML = '';
+  data.forEach((g,i) => { const o = document.createElement('option'); o.value=i; o.textContent=shortDay(g.day); sel.appendChild(o); });
+  if (prev) sel.value = prev;
+}
+
+function toggle(gi, ti) {
+  const task = data[gi].tasks[ti];
+  task.done = !task.done;
+  points = task.done ? points + 10 : Math.max(0, points - 10);
+  save(); renderAll();
+  if (task.done) { bump(); showToast(); }
+}
+
+function addTask() {
+  const input = document.getElementById('new-task');
+  const text = input.value.trim();
+  if (!text) return;
+  const gi = parseInt(document.getElementById('day-select').value);
+  data[gi].tasks.push({ text, done: false });
+  input.value = '';
+  save(); renderAll();
+}
+
+function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function bump() {
+  const el = document.getElementById('pts');
+  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+  setTimeout(() => el.classList.remove('bump'), 300);
+}
+
+let toastTimer;
+function showToast() {
+  clearTimeout(toastTimer);
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+document.getElementById('new-task').addEventListener('keydown', e => { if (e.key==='Enter') addTask(); });
+
+// Voice input
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const micBtn = document.getElementById('mic-btn');
+let recognition = null;
+let listening = false;
+
+if (!SpeechRecognition) {
+  micBtn.classList.add('no-support');
+  micBtn.title = 'Voice not supported in this browser';
+} else {
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = true;
+  recognition.continuous = false;
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('new-task').value = transcript;
+    if (e.results[e.results.length - 1].isFinal) stopMic();
+  };
+
+  recognition.onerror = () => stopMic();
+  recognition.onend = () => stopMic();
+}
+
+function toggleMic() {
+  if (!recognition) return;
+  listening ? stopMic() : startMic();
+}
+
+function startMic() {
+  listening = true;
+  micBtn.classList.add('listening');
+  micBtn.title = 'Listening... click to stop';
+  document.getElementById('new-task').placeholder = 'listening...';
+  recognition.start();
+}
+
+function stopMic() {
+  listening = false;
+  micBtn.classList.remove('listening');
+  micBtn.title = 'Speak task';
+  document.getElementById('new-task').placeholder = 'task description...';
+  try { recognition.stop(); } catch(e) {}
+}
+
+renderAll();
+</script>
+</body>
+</html>
